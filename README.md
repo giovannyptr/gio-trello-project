@@ -282,8 +282,10 @@ npm install
 Copy ```.env.example```to ```.env.local``` and fill in your Supabase & Clerk credentials.
 
 Start local Supabase emulation (optional):
-```supabase start
-supabase db push```
+```
+supabase start
+supabase db push
+```
 
 Run the development server:
 ```npm run dev```
