@@ -269,6 +269,7 @@ FOR DELETE USING (
 );
 
 ---
+```
 
 ## 🧠 CLONE & RUN
 
