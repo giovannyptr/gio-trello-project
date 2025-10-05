@@ -2,9 +2,11 @@ import { useUser } from "@clerk/nextjs"
 import { boardDataService } from "../services"
 import { useState } from "react"
 import { Board } from "../supabase/models"
+import { useSupabase } from "../supabase/SupabaseProvider"
 
 export function useBoards() {
   const { user } = useUser()
+  const {supabase} = useSupabase();
   const [boards, setBoards] = useState<Board[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null
@@ -20,7 +22,9 @@ export function useBoards() {
     if (!user) throw new Error("User not authenticated")
 
     try {
-      const newBoard = await boardDataService.createBoardWithDefaultColumns({
+      const newBoard = await boardDataService.createBoardWithDefaultColumns(
+        supabase!, 
+        {
         ...boardData,
         userId: user.id
       })
