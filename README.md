@@ -1,35 +1,57 @@
-# gio-trello-project
+⚙️ TECH STACK
 
-⚙️ Tech Stack
-Next.js – React framework with file‑based routing & server components
-Supabase – Hosted Postgres, real‑time subscriptions & Storage
+Next.js – React framework with file-based routing & server components
+
+Supabase – Hosted Postgres, real-time subscriptions & Storage
+
 Clerk – Authentication & subscription billing integration
-@dnd-kit – Flexible drag‑and‑drop primitives
-TailwindCSS – Utility‑first styling
+
+@dnd-kit – Flexible drag-and-drop primitives
+
+TailwindCSS – Utility-first styling
+
 TypeScript – Static typing and developer tooling
-⚡️ Features
-📋 Boards & Columns Create multiple boards and define custom columns.
 
-➕ Dynamic Tasks Add, edit and delete tasks with title, description, assignee, priority & due date.
+⚡️ FEATURES
 
-🔄 Drag & Drop Reorder tasks and move them between columns with smooth animations.
+📋 Boards & Columns
+Create multiple boards and define custom columns.
 
-📡 Real‑Time Updates Changes sync instantly across clients via Supabase subscriptions.
+➕ Dynamic Tasks
+Add, edit and delete tasks with title, description, assignee, priority & due date.
 
-🔍 Filtering Filter tasks by priority, due date, and search within a board.
+🔄 Drag & Drop
+Reorder tasks and move them between columns with smooth animations.
 
-🔐 Auth & Billing Sign up / log in with Clerk and upgrade your plan to create unlimited boards.
+📡 Real-Time Updates
+Changes sync instantly across clients via Supabase subscriptions.
 
-🚀 One‑Click Deployment Deploy the app on Vercel with environment variables for Supabase & Clerk.
+🔍 Filtering
+Filter tasks by priority, due date, and search within a board.
 
-👌 Quick Start
+🔐 Auth & Billing
+Sign up / log in with Clerk and upgrade your plan to create unlimited boards.
+
+🚀 One-Click Deployment
+Deploy the app on Vercel with environment variables for Supabase & Clerk.
+
+👌 QUICK START
 Prerequisites
+
 Node.js (v16+)
+
 Supabase CLI
+
 Supabase project (URL & ANON key)
+
 Clerk account (Publishable & Secret keys)
-Supabase SQL Statements:
+
+Supabase SQL Statements
+
 Creates helper function, tables (boards, columns, tasks)
+
 Adds FKs, defaults, and useful indexes
+
 Enables RLS
+
 Adds all policies you described (plus the missing boards ones)
