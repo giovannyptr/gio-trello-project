@@ -267,14 +267,10 @@ FOR DELETE USING (
       AND boards.user_id = requesting_user_id()
   )
 );
+
 ## 🧠 CLONE & RUN
 
 ```bash
-git clone https://github.com/yourusername/trello-clone-next-supabase.git
-cd trello-clone-next-supabase
-npm install
-
-Copy code
 git clone https://github.com/yourusername/trello-clone-next-supabase.git
 cd trello-clone-next-supabase
 npm install
@@ -289,4 +285,4 @@ Run the development server
 bash
 Copy code
 npm run dev
-Then open 👉 http://localhost:3000 in your browser.
+Open http://localhost:3000 in your browser.
