@@ -267,8 +267,13 @@ FOR DELETE USING (
       AND boards.user_id = requesting_user_id()
   )
 );
-🧠 CLONE & RUN
-bash
+## 🧠 CLONE & RUN
+
+```bash
+git clone https://github.com/yourusername/trello-clone-next-supabase.git
+cd trello-clone-next-supabase
+npm install
+
 Copy code
 git clone https://github.com/yourusername/trello-clone-next-supabase.git
 cd trello-clone-next-supabase
