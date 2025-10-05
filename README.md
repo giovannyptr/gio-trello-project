@@ -273,19 +273,19 @@ FOR DELETE USING (
 
 ## 🧠 CLONE & RUN
 
-```bash
+```
 git clone https://github.com/yourusername/trello-clone-next-supabase.git
 cd trello-clone-next-supabase
 npm install
-Copy .env.example → .env.local and fill in your Supabase & Clerk credentials.
+```
 
-Optional: Start local Supabase emulation
-bash
-Copy code
-supabase start
-supabase db push
-Run the development server
-bash
-Copy code
-npm run dev
+Copy ```.env.example```to ```.env.local``` and fill in your Supabase & Clerk credentials.
+
+Start local Supabase emulation (optional):
+```supabase start
+supabase db push```
+
+Run the development server:
+```npm run dev```
+
 Open http://localhost:3000 in your browser.
