@@ -269,10 +269,12 @@ FOR DELETE USING (
 );
 ```
 
-##Clone and Run
-```git clone https://github.com/giovannyptr/gio-trello-project.git
+## Clone and Run
+```
+git clone https://github.com/giovannyptr/gio-trello-project.git
 cd trello-app-gio
-npm install```
+npm install
+```
 
 Copy ```.env.example``` to ```.env.local``` and fill in your Supabase & Clerk credentials.
 
