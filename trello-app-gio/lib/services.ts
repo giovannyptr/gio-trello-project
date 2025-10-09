@@ -170,17 +170,17 @@ export const boardDataService = {
 
     if (!board) throw new Error("Board not found");
 
-    // const tasks = await taskService.getTasksByBoard(supabase, boardId);
+    const tasks = await taskService.getTasksByBoard(supabase, boardId);
 
-    // const columnsWithTasks = columns.map((column) => ({
-    //   ...column,
-    //   tasks: tasks.filter((task) => task.column_id === column.id),
-    // }));
+    const columnsWithTasks = columns.map((column) => ({
+      ...column,
+      tasks: tasks.filter((task) => task.column_id === column.id),
+    }));
 
     return {
       board,
-      columns
-      // columnsWithTasks,
+      columns,
+      columnsWithTasks
     };
   },
 

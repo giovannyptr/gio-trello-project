@@ -1,18 +1,91 @@
 "use client";
 
-import Navbar from "@/components/navbar"
-import { useBoard } from "@/lib/hooks/useBoards"
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import Navbar from "@/components/navbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useBoard } from "@/lib/hooks/useBoards";
+import { ColumnWithTasks, Task } from "@/lib/supabase/models";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Calendar, MoreHorizontal, Plus, Pointer, User } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  rectIntersection,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+function Column({ column, children, onCreateTask, onEditColumn }: {
+  column: ColumnWithTasks
+  children: React.ReactNode;
+  onCreateTask: (taskData: any) => Promise<void>;
+  onEditColumn: (column: ColumnWithTasks) => void;
+}) {
+  return (
+    <div className="w-full lg:flex-shrink-0 lg:w-80">
+      <div className="bg-white rounded-lg shadow-sm border">
+        {/** Column Header */}
+        <div className="p-3 sm:p-4 border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 min-w-0">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                {column.title}
+              </h3>
+              <Badge variant="secondary" className="text-xs flex-shrink-0">
+                {column.tasks.length}
+              </Badge>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-shrink-0"
+              onClick={() => onEditColumn(column)}
+            >
+              <MoreHorizontal />
+            </Button>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  )
+}
+
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>()
-  const { board, updateBoard } = useBoard(id)
+  const { board, updateBoard, columns, createRealTask } = useBoard(id)
 
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [newTitle, setNewTitle] = useState("");
@@ -26,7 +99,7 @@ export default function BoardPage() {
     dueDate: null as string | null,
   });
 
-  
+
   function handleFilterChange(
     type: "priority" | "assignee" | "dueDate",
     value: string | string[] | null
@@ -58,6 +131,43 @@ export default function BoardPage() {
       });
       setIsEditingTitle(false);
     } catch { }
+  }
+
+  async function createTask(taskData: {
+    title: string;
+    description?: string;
+    assignee?: string;
+    dueDate?: string;
+    priority: "low" | "medium" | "high";
+  }) {
+    const targetColumn = columns[0];
+    if (!targetColumn) {
+      throw new Error("No column available to add task");
+    }
+
+    await createRealTask(targetColumn.id, taskData);
+  }
+
+  async function handleCreateTask(e: any) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const taskData = {
+      title: formData.get("title") as string,
+      description: (formData.get("description") as string) || undefined,
+      assignee: (formData.get("assignee") as string) || undefined,
+      dueDate: (formData.get("dueDate") as string) || undefined,
+      priority:
+        (formData.get("priority") as "low" | "medium" | "high") || "medium",
+    };
+
+    if (taskData.title.trim()) {
+      await createTask(taskData);
+
+      const trigger = document.querySelector(
+        '[data-state="open"'
+      ) as HTMLElement;
+      if (trigger) trigger.click();
+    }
   }
 
   return (
@@ -196,6 +306,165 @@ export default function BoardPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        {/* Stats */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">Total Tasks: </span>
+              {columns.reduce((sum, col) => sum + col.tasks.length, 0)}
+            </div>
+          </div>
+
+          {/* Add task dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto">
+                <Plus />
+                Add Task
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="w-[95vw] max-w-[425px] mx-auto">
+              <DialogHeader>
+                <DialogTitle>Create New Task</DialogTitle>
+                <p className="text-sm text-gray-600">
+                  Add a task to the board
+                </p>
+              </DialogHeader>
+
+              <form className="space-y-4" onSubmit={handleCreateTask} >
+                <div className="space-y-2">
+                  <Label>Title *</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    placeholder="Enter task title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    placeholder="Enter task description"
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Assignee</Label>
+                  <Input
+                    id="assignee"
+                    name="assignee"
+                    placeholder="Who should do this?"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select name="priority" defaultValue="medium">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["low", "medium", "high"].map((priority, key) => (
+                        <SelectItem key={key} value={priority}>
+                          {priority.charAt(0).toUpperCase() +
+                            priority.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Due Date</Label>
+                  <Input type="date" id="dueDate" name="dueDate" />
+                </div>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="submit">Create Task</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Board Columns */}
+        <div className="flex flex-col lg:flex-row lg:space-x-6 lg:overflow-x-auto 
+            lg:pb-6 lg:px-2 lg:-mx-2 lg:[&::-webkit-scrollbar]:h-2 
+            lg:[&::-webkit-scrollbar-track]:bg-gray-100 
+            lg:[&::-webkit-scrollbar-thumb]:bg-gray-300 lg:[&::-webkit-scrollbar-thumb]:rounded-full 
+            space-y-4 lg:space-y-0">
+          {columns.map((column, key) => (
+            <Column
+              key={key}
+              column={column}
+              onCreateTask={createTask}
+              onEditColumn={() => { }}
+              >
+
+
+              <div className="space-y-3">
+                {column.tasks.map((task, key) => (
+                  <div>{task.title}</div>
+                ))}
+              </div>
+            </Column>
+          ))}
+        </div>
+
+        {/* <DndContext
+          sensors={sensors}
+          collisionDetection={rectIntersection}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div
+            className="flex flex-col lg:flex-row lg:space-x-6 lg:overflow-x-auto 
+            lg:pb-6 lg:px-2 lg:-mx-2 lg:[&::-webkit-scrollbar]:h-2 
+            lg:[&::-webkit-scrollbar-track]:bg-gray-100 
+            lg:[&::-webkit-scrollbar-thumb]:bg-gray-300 lg:[&::-webkit-scrollbar-thumb]:rounded-full 
+            space-y-4 lg:space-y-0"
+          >
+            {filteredColumns.map((column, key) => (
+              <DroppableColumn
+                key={key}
+                column={column}
+                onCreateTask={handleCreateTask}
+                onEditColumn={handleEditColumn}
+              >
+                <SortableContext
+                  items={column.tasks.map((task) => task.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-3">
+                    {column.tasks.map((task, key) => (
+                      <SortableTask task={task} key={key} />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DroppableColumn>
+            ))}
+
+            <div className="w-full lg:flex-shrink-0 lg:w-80">
+              <Button
+                variant="outline"
+                className="w-full h-full min-h-[200px] border-dashed border-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setIsCreatingColumn(true)}
+              >
+                <Plus />
+                Add another list
+              </Button>
+            </div>
+
+            <DragOverlay>
+              {activeTask ? <TaskOverlay task={activeTask} /> : null}
+            </DragOverlay>
+          </div>
+        </DndContext> */}
+      </main>
     </div>
   )
 }
