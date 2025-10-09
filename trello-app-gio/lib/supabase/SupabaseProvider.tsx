@@ -6,12 +6,11 @@ import { useSession } from "@clerk/nextjs";
 
 type SupabaseContext = {
   supabase: SupabaseClient | null;
-  isLoaded: boolean,
-}
-
+  isLoaded: boolean;
+};
 const Context = createContext<SupabaseContext>({
   supabase: null,
-  isLoaded: false
+  isLoaded: false,
 });
 
 export default function SupabaseProvider({
@@ -19,30 +18,30 @@ export default function SupabaseProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { session } = useSession()
-  const [supabase, setSupabase] = useState<SupabaseClient | null>(null)
+  const { session } = useSession();
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!session) return
+    if (!session) return;
     const client = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        accessToken: async () => session?.getToken() ?? null,
-
+        accessToken: () => session?.getToken(),
       }
     );
 
-    setSupabase(client)
-    setIsLoaded(true)
+    setSupabase(client);
+    setIsLoaded(true);
   }, [session]);
 
   return (
     <Context.Provider value={{ supabase, isLoaded }}>
-      {!isLoaded ? <div>Loading.. </div> : children}
+      {/* {!isLoaded ? <div> Loading...</div> : children} */}
+      {children}
     </Context.Provider>
-  )
+  );
 }
 
 export const useSupabase = () => {
@@ -52,4 +51,4 @@ export const useSupabase = () => {
   }
 
   return context;
-}
+};
