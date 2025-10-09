@@ -291,46 +291,4 @@ Run the development server:
 Open ```http://localhost:3000 in your browser.```
 
 
-flowchart TD
-  %% Tech Stack
-  subgraph Tech_Stack["⚙️ Tech Stack"]
-    N[Next.js]:::framework --> UI[Frontend UI & Routing]
-    S[Supabase]:::db --> DB[Postgres DB + Policies + RLS]
-    C[Clerk]:::auth --> AUTH[Auth & Billing]
-    D[@dnd-kit]:::lib --> DRAG[Drag & Drop Interaction]
-    T[TypeScript]:::lang --> DEV[Type Safety & Tooling]
-    TW[TailwindCSS]:::style --> UI
-  end
-
-  %% Database Tables
-  subgraph Database["🧩 Supabase Schema"]
-    Boards["📋 boards\n- id\n- title\n- description\n- color\n- user_id"] --> Columns["🧱 columns\n- id\n- board_id (FK)\n- title\n- sort_order\n- user_id"]
-    Columns --> Tasks["✅ tasks\n- id\n- column_id (FK)\n- title\n- description\n- assignee\n- due_date\n- priority\n- sort_order"]
-  end
-
-  %% App Features
-  subgraph Features["⚡️ Features"]
-    F1["Create & Manage Boards"] --> F2["Add Columns per Board"]
-    F2 --> F3["Add, Edit, Delete Tasks"]
-    F3 --> F4["Drag & Drop Tasks between Columns"]
-    F4 --> F5["Realtime Sync via Supabase Subscriptions"]
-    F5 --> F6["Auth & Billing via Clerk"]
-  end
-
-  %% Relations
-  UI --> F1
-  F1 --> Boards
-  F2 --> Columns
-  F3 --> Tasks
-  F4 --> DRAG
-  F5 --> DB
-  F6 --> AUTH
-
-  classDef db fill:#fdf6e3,stroke:#b58900,stroke-width:1px,color:#333;
-  classDef framework fill:#d3eafd,stroke:#007acc,stroke-width:1px,color:#000;
-  classDef lib fill:#eaf5ea,stroke:#3a7a3a,stroke-width:1px,color:#000;
-  classDef auth fill:#fbeaea,stroke:#c92c2c,stroke-width:1px,color:#000;
-  classDef style fill:#faf3ff,stroke:#9c27b0,stroke-width:1px,color:#000;
-  classDef lang fill:#fff3cd,stroke:#ff9800,stroke-width:1px,color:#000;
-
 
